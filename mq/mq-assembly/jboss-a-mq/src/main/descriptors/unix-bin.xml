@@ -32,6 +32,7 @@
                 <exclude>**/demos/**</exclude>
                 <exclude>bin/**</exclude>
                 <exclude>etc/jmx.acl.*</exclude>
+                <exclude>etc/org.apache.karaf.command.acl.*</exclude>
                 <exclude>etc/users.properties</exclude>
                 <exclude>etc/org.ops4j.pax.web.cfg</exclude>
                 <exclude>etc/org.apache.karaf.features.cfg</exclude>
@@ -77,6 +78,16 @@
                 <exclude>bin/setenv*</exclude>
             </excludes>
             <fileMode>0755</fileMode>
+        </fileSet>
+
+        <!-- Copy the org.apache.karaf.command.acl.* files into the etc/auth directory -->
+        <fileSet>
+            <directory>target/dependencies/unix/fabric8-karaf-${fabric.version}/etc</directory>
+            <outputDirectory>/etc/auth/</outputDirectory>
+            <includes>
+                <include>org.apache.karaf.command.acl.*</include>
+            </includes>
+            <fileMode>0644</fileMode>
         </fileSet>
 
         <fileSet>

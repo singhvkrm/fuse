@@ -37,6 +37,7 @@
                 <exclude>etc/org.ops4j.pax.web.cfg</exclude>
                 <exclude>etc/org.apache.karaf.features.cfg</exclude>
                 <exclude>etc/org.ops4j.pax.logging.cfg</exclude>
+                <exclude>etc/org.apache.karaf.command.acl.*</exclude>
                 <exclude>fabric_notices.txt</exclude>
                 <exclude>fabric_dependencies.txt</exclude>
                 <exclude>LICENSE</exclude>
@@ -62,6 +63,16 @@
             </includes>
             <fileMode>0644</fileMode>
             <directoryMode>0775</directoryMode>
+        </fileSet>
+
+        <!-- Copy the org.apache.karaf.command.acl.* files into the etc/auth directory -->
+        <fileSet>
+            <directory>target/dependencies/unix/apache-karaf-${karaf-version}/etc</directory>
+            <outputDirectory>/etc/auth/</outputDirectory>
+            <includes>
+                <include>org.apache.karaf.command.acl.*</include>
+            </includes>
+            <fileMode>0644</fileMode>
         </fileSet>
 
         <!-- System repo -->
