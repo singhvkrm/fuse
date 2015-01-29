@@ -24,14 +24,15 @@ import io.fabric8.groups.internal.ManagedGroupFactory;
 import io.fabric8.groups.internal.ManagedGroupFactoryBuilder;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.ContainerProxy;
-import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 import io.fabric8.mq.fabric.discovery.FabricDiscoveryAgent;
 import org.apache.curator.framework.CuratorFramework;
-import org.junit.Ignore;
+import org.apache.karaf.jaas.boot.principal.RolePrincipal;
+import org.fusesource.esb.itests.pax.exam.karaf.EsbTestSupport;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
+import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
@@ -39,6 +40,7 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -48,14 +50,16 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.features;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerMethod.class)
-public class EsbProfileRedeployTest extends FabricTestSupport {
+public class EsbProfileRedeployTest extends EsbTestSupport {
 
     private long timeout = 300 * 1000L;
 
-    @Ignore("ENTESB-1792")
     @Test
     public void testProfileRedeploy() throws Exception {
-        executeCommand("fabric:create -n");
+        Set<RolePrincipal> set = new HashSet<RolePrincipal>();
+        set.add(new RolePrincipal("Administrator"));
+        set.add(new RolePrincipal("Operator"));
+        executeCommand(set, "fabric:create -n");
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
@@ -72,6 +76,7 @@ public class EsbProfileRedeployTest extends FabricTestSupport {
                         throw new Exception("Shouldn't be called");
                     }
                 });
+                System.out.println(">>>> Factory is a " + factory.getClass().getCanonicalName());
                 final MultiGroup group = (MultiGroup) factory.createMultiGroup("/fabric/registry/clusters/fusemq/default", FabricDiscoveryAgent.ActiveMQNode.class);
                 group.start();
                 FabricDiscoveryAgent.ActiveMQNode master = null;
@@ -137,11 +142,11 @@ public class EsbProfileRedeployTest extends FabricTestSupport {
     }
 
     @Configuration
-   	public Option[] config() {
-   		return new Option[]{
-   				new DefaultCompositeOption(fabricDistributionConfiguration()),
+    public Option[] config() {
+        return new Option[]{
+                new DefaultCompositeOption(esbDistributionConfiguration("jboss-fuse-full")),
+                CoreOptions.mavenBundle("io.fabric8.itests.paxexam", "fabric-itests-paxexam-common").versionAsInProject(),
                 features("default", "mq-fabric")
-   		};
-   	}
-
+        };
+    }
 }
